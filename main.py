@@ -12,7 +12,7 @@ st.title("🎶 Global Music Trend Predictions using ML")
 # Load CSV from GitHub
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/your-username/your-repo/main/spotify_data.csv"  # Replace with your actual GitHub raw CSV URL
+    url = "https://raw.githubusercontent.com/Sanjeevan13/IDSProject/refs/heads/main/Cleaned_Spotify_2024_Global_Streaming_Data.csv"  # Replace with your actual GitHub raw CSV URL
     return pd.read_csv(url)
 
 df = load_data()
