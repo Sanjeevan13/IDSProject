@@ -48,6 +48,8 @@ features = [
 ]
 target = "total_streams_millions"
 
+st.write("Available cleaned columns:", df.columns.tolist())
+
 # Drop rows with missing values in the selected columns
 df_model = df[features + [target]].dropna()
 
