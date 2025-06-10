@@ -16,9 +16,8 @@ def load_data():
     return pd.read_csv(url)
 
 df = load_data()
-st.success("✅ Data loaded from GitHub successfully.")
-
 st.write("Column names in dataset:", df.columns.tolist())
+st.success("✅ Data loaded from GitHub successfully.")
 
 # EDA Section
 st.subheader("🔍 Exploratory Data Analysis")
