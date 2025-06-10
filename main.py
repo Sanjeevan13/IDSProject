@@ -44,7 +44,7 @@ features = [
     "monthly_listeners_millions",
     "total_hours_streamed_millions",
     "avg_stream_duration_min",
-    "skip_rate_"
+    "skip_rate_%"
 ]
 target = "total_streams_millions"
 
