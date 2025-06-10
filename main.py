@@ -14,7 +14,7 @@ st.write("Powered by Spotify Global Streaming Data 2024")
 # Load and clean data
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/yourusername/yourrepo/main/spotify_data.csv"  # Replace with your real GitHub raw URL
+    url = "https://raw.githubusercontent.com/Sanjeevan13/IDSProject/refs/heads/main/Cleaned_Spotify_2024_Global_Streaming_Data.csv"  # Replace with your real GitHub raw URL
     df = pd.read_csv(url)
 
     # Clean column names
