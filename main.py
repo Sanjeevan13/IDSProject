@@ -5,6 +5,7 @@ import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
+from math import sqrt
 
 st.set_page_config(page_title="Global Music Trend Dashboard", layout="wide")
 
@@ -65,7 +66,7 @@ y_pred = model.predict(X_test)
 
 # Metrics
 r2 = r2_score(y_test, y_pred)
-rmse = mean_squared_error(y_test, y_pred, squared=False)
+rmse = sqrt(mean_squared_error(y_test, y_pred))
 
 st.subheader("🧠 Linear Regression Results")
 st.write(f"R² Score: `{r2:.4f}`")
