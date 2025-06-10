@@ -17,7 +17,6 @@ def load_data():
 
 df = load_data()
 st.write("Column names in dataset:", df.columns.tolist())
-st.success("✅ Data loaded from GitHub successfully.")
 
 # EDA Section
 st.subheader("🔍 Exploratory Data Analysis")
