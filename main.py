@@ -1,73 +1,61 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
+import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# --- Page Config ---
-st.set_page_config(page_title="Spotify Trend Predictor", layout="wide")
+# Streamlit config
+st.set_page_config(page_title="Global Music Trend Predictions", layout="wide")
+st.title("🎶 Global Music Trend Predictions using ML")
 
-# --- Title ---
-st.title("🎵 Spotify Global Music Trend Predictor")
-st.markdown("Predict and visualize global music trends using machine learning.")
-
-# --- Load Data ---
+# Load CSV from GitHub
 @st.cache_data
 def load_data():
-    df = pd.read_csv("spotify_data.csv")  # Replace with your cleaned dataset
-    df['date'] = pd.to_datetime(df['date'])
-    return df
+    url = "https://raw.githubusercontent.com/your-username/your-repo/main/spotify_data.csv"  # Replace with your actual GitHub raw CSV URL
+    return pd.read_csv(url)
 
 df = load_data()
+st.success("✅ Data loaded from GitHub successfully.")
 
-# --- Sidebar Filters ---
-st.sidebar.header("🔍 Filter")
-region = st.sidebar.selectbox("Select Region", sorted(df['region'].unique()))
-date_range = st.sidebar.slider("Select Date Range", 
-                                min_value=df['date'].min().date(), 
-                                max_value=df['date'].max().date(),
-                                value=(df['date'].min().date(), df['date'].max().date()))
+# EDA Section
+st.subheader("🔍 Exploratory Data Analysis")
+st.dataframe(df.head())
 
-# --- Filtered Data ---
-filtered_df = df[(df['region'] == region) & 
-                 (df['date'].dt.date >= date_range[0]) & 
-                 (df['date'].dt.date <= date_range[1])]
+st.write("Summary Statistics:")
+st.dataframe(df.describe())
 
-# --- Top Songs ---
-st.subheader(f"🎧 Top Streamed Songs in {region}")
-top_songs = (filtered_df.groupby('track_name')['streams']
-                         .sum()
-                         .sort_values(ascending=False)
-                         .head(10)
-                         .reset_index())
+if "streams" in df.columns:
+    top_tracks = df.sort_values("streams", ascending=False).head(10)
+    st.bar_chart(top_tracks.set_index("track_name")["streams"])
 
-chart = alt.Chart(top_songs).mark_bar().encode(
-    x=alt.X('streams:Q', title='Total Streams'),
-    y=alt.Y('track_name:N', sort='-x', title='Song'),
-    color=alt.Color('streams:Q', scale=alt.Scale(scheme='greenblue')),
-    tooltip=['track_name', 'streams']
-).properties(height=400)
+# ML Section
+st.subheader("📊 Machine Learning: Predict Streams")
 
-st.altair_chart(chart, use_container_width=True)
+numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+if "streams" in numeric_cols:
+    target = "streams"
+    features = [col for col in numeric_cols if col != target]
 
-# --- Model Section ---
-st.subheader("📈 Predict Song Popularity")
+    if features:
+        X = df[features].fillna(0)
+        y = df[target]
 
-model_data = filtered_df[['rank', 'streams']].dropna()
-X = model_data[['rank']]
-y = model_data['streams']
+        model = LinearRegression()
+        model.fit(X, y)
+        df["Predicted Streams"] = model.predict(X)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-model = LinearRegression()
-model.fit(X_train, y_train)
-predictions = model.predict(X_test)
+        st.write("Actual vs Predicted (sample):")
+        st.dataframe(df[[target, "Predicted Streams"]].head())
 
-mae = mean_absolute_error(y_test, predictions)
-st.metric(label="Mean Absolute Error", value=f"{mae:,.0f} streams")
+        fig, ax = plt.subplots()
+        sns.scatterplot(x=y, y=df["Predicted Streams"], ax=ax)
+        ax.set_xlabel("Actual Streams")
+        ax.set_ylabel("Predicted Streams")
+        ax.set_title("Actual vs Predicted Streams")
+        st.pyplot(fig)
+    else:
+        st.warning("⚠️ No numeric features found to model.")
+else:
+    st.warning("⚠️ 'streams' column not found.")
 
-st.write("This basic model predicts a song's stream count based on its rank. For better performance, add more features like artist popularity, genre, and region trends.")
-
-# --- Footer ---
-st.markdown("---")
-st.markdown("Created for **WIE2003 Introduction to Data Science** | Group Project - 2025")
