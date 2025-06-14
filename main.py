@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
@@ -11,13 +11,15 @@ from sklearn.metrics import r2_score, mean_squared_error
 from math import sqrt
 
 st.set_page_config(page_title="Global Music Trend Dashboard", layout="wide")
+
 st.title("🎵 Global Music Trend Predictions Dashboard")
 st.write("Powered by Spotify Global Streaming Data 2024")
 
 # Load and clean data
 @st.cache_data
+
 def load_data():
-    url = "https://raw.githubusercontent.com/Sanjeevan13/IDSProject/main/Cleaned_Spotify_2024_Global_Streaming_Data.csv"
+    url = "https://raw.githubusercontent.com/Sanjeevan13/IDSProject/refs/heads/main/Cleaned_Spotify_2024_Global_Streaming_Data.csv"
     df = pd.read_csv(url)
     df.columns = (
         df.columns.str.strip()
@@ -30,14 +32,20 @@ def load_data():
 
 df = load_data()
 
-# Show data
-st.subheader("📊 Raw Data Preview")
-st.dataframe(df.head())
+# Tabs
+overview, model_tab, predict_tab = st.tabs(["📊 Data Overview", "🧠 Model Evaluation", "🎯 Predict Total Streams"])
 
-st.subheader("📈 Summary Statistics")
-st.write(df.describe())
+with overview:
+    st.subheader("📊 Raw Data Preview")
+    st.dataframe(df.head())
 
-# Define features and target
+    st.subheader("🧮 Column Names")
+    st.write(df.columns.tolist())
+
+    st.subheader("📈 Summary Statistics")
+    st.write(df.describe())
+
+# Features and Target
 features = [
     "monthly_listeners_millions",
     "total_hours_streamed_millions",
@@ -46,65 +54,101 @@ features = [
 ]
 target = "total_streams_millions"
 
-# Prepare data
 df_model = df[features + [target]].dropna()
 X = df_model[features]
 y = df_model[target]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Define models
+# Train Models
 models = {
     "Linear Regression": LinearRegression(),
-    "Ridge Regression": Ridge(),
-    "Decision Tree": DecisionTreeRegressor(),
-    "Random Forest": RandomForestRegressor(),
-    "KNN": KNeighborsRegressor()
+    "Decision Tree": DecisionTreeRegressor(random_state=42),
+    "Random Forest": RandomForestRegressor(random_state=42),
+    "KNN Regressor": KNeighborsRegressor()
 }
 
-# Cache trained models
-@st.cache_resource
-def train_models(X_train, y_train):
-    trained = {}
-    for name, model in models.items():
-        model.fit(X_train, y_train)
-        trained[name] = model
-    return trained
+trained_models = {}
+model_results = []
 
-trained_models = train_models(X_train, y_train)
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    rmse = sqrt(mean_squared_error(y_test, y_pred))
+    trained_models[name] = model
+    model_results.append((name, round(r2, 4), round(rmse, 2)))
 
-# Model selection
-st.subheader("🧠 Select Model for Prediction")
-selected_model_name = st.selectbox("Choose a model", list(trained_models.keys()))
-selected_model = trained_models[selected_model_name]
+results_df = pd.DataFrame(model_results, columns=["Model", "R² Score", "RMSE"])
 
-# Make predictions
-y_pred = selected_model.predict(X_test)
-r2 = r2_score(y_test, y_pred)
-rmse = sqrt(mean_squared_error(y_test, y_pred))
+with model_tab:
+    st.subheader("📋 Model Comparison")
+    st.dataframe(results_df)
 
-st.write(f"**Selected Model:** `{selected_model_name}`")
-st.write(f"R² Score: `{r2:.4f}`")
-st.write(f"RMSE: `{rmse:.4f}`")
+    selected_model_name = st.selectbox("🔧 Select a Model to Visualize", list(trained_models.keys()))
+    selected_model = trained_models[selected_model_name]
+    y_selected_pred = selected_model.predict(X_test)
 
-# Plot
-fig, ax = plt.subplots()
-sns.scatterplot(x=y_test, y=y_pred, ax=ax)
-ax.set_xlabel("Actual Total Streams (Millions)")
-ax.set_ylabel("Predicted Total Streams (Millions)")
-ax.set_title(f"{selected_model_name} - Actual vs Predicted")
-st.pyplot(fig)
+    col1, col2 = st.columns(2)
+    col1.metric("R² Score", f"{r2_score(y_test, y_selected_pred):.4f}")
+    col2.metric("RMSE", f"{sqrt(mean_squared_error(y_test, y_selected_pred)):.2f}")
 
-# User prediction
-st.subheader("🎯 Predict Total Streams (Millions)")
-monthly = st.slider("Monthly Listeners (Millions)", 0.0, 500.0, 100.0)
-hours = st.slider("Total Hours Streamed (Millions)", 0.0, 5000.0, 1000.0)
-duration = st.slider("Avg Stream Duration (Min)", 1.0, 10.0, 3.0)
-skip_rate = st.slider("Skip Rate (%)", 0.0, 100.0, 30.0)
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=y_test, y=y_selected_pred, ax=ax)
+    ax.set_xlabel("Actual Total Streams (Millions)")
+    ax.set_ylabel("Predicted Total Streams (Millions)")
+    ax.set_title(f"Actual vs Predicted - {selected_model_name}")
+    st.pyplot(fig)
 
-input_data = pd.DataFrame([[monthly, hours, duration, skip_rate]], columns=features)
-predicted_streams = selected_model.predict(input_data)[0]
-st.success(f"🎧 Predicted Total Streams ({selected_model_name}): `{predicted_streams:.2f} Million`")
+    if hasattr(selected_model, "feature_importances_"):
+        importance_df = pd.DataFrame({
+            'Feature': features,
+            'Importance': selected_model.feature_importances_
+        }).sort_values(by="Importance", ascending=False)
 
-st.caption("Data Source: Spotify Global Streaming Data 2024 · Created for WIE2003 Data Science Project")
+        fig_imp, ax_imp = plt.subplots()
+        sns.barplot(data=importance_df, x='Importance', y='Feature', ax=ax_imp)
+        ax_imp.set_title("🔍 Feature Importance")
+        st.pyplot(fig_imp)
+
+with predict_tab:
+    st.subheader("🔢 Input Features")
+    monthly = st.slider("Monthly Listeners (Millions)", 0.0, 500.0, 100.0)
+    hours = st.slider("Total Hours Streamed (Millions)", 0.0, 5000.0, 1000.0)
+    duration = st.slider("Avg Stream Duration (Min)", 1.0, 10.0, 3.0)
+    skip_rate = st.slider("Skip Rate (%)", 0.0, 100.0, 30.0)
+
+    input_data = pd.DataFrame(
+        [[monthly, hours, duration, skip_rate]],
+        columns=features
+    )
+
+    st.subheader("📊 Predictions from All Models")
+    predictions = []
+    for name, model in trained_models.items():
+        pred = model.predict(input_data)[0]
+        predictions.append((name, round(pred, 2)))
+
+    prediction_df = pd.DataFrame(predictions, columns=["Model", "Predicted Streams (Millions)"])
+    st.dataframe(prediction_df)
+
+    # Store prediction in session
+    if "history" not in st.session_state:
+        st.session_state.history = []
+    st.session_state.history.append({
+        "Monthly": monthly,
+        "Hours": hours,
+        "Duration": duration,
+        "Skip Rate": skip_rate,
+        **{name: pred for name, pred in predictions}
+    })
+
+    st.subheader("📚 Prediction History")
+    st.dataframe(pd.DataFrame(st.session_state.history))
+
+    # Download button
+    csv = prediction_df.to_csv(index=False)
+    st.download_button("📥 Download Prediction", data=csv, file_name="prediction.csv", mime="text/csv")
+
+st.caption("Data Source: Spotify Global Streaming Data 2024 · Created for WIE2003 Data Science Project by Group 5")
 
 
