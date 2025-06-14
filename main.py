@@ -149,6 +149,6 @@ with predict_tab:
     csv = prediction_df.to_csv(index=False)
     st.download_button("📥 Download Prediction", data=csv, file_name="prediction.csv", mime="text/csv")
 
-st.caption("Data Source: Spotify Global Streaming Data 2024 · Created for WIE2003 Data Science Project by Group 5")
+st.caption("· Created for WIE2003 Data Science Project by Group 5")
 
 
