@@ -142,12 +142,23 @@ with predict_tab:
         **{name: pred for name, pred in predictions}
     })
 
-    st.subheader("📚 Prediction History")
+     st.subheader("📚 Prediction History")
     st.dataframe(pd.DataFrame(st.session_state.history))
 
-    # Download button
+    if st.button("🧹 Clear History"):
+        st.session_state.history = []
+        st.experimental_rerun()
+
     csv = prediction_df.to_csv(index=False)
     st.download_button("📥 Download Prediction", data=csv, file_name="prediction.csv", mime="text/csv")
+
+    st.markdown("""
+    <hr style='border: 1px solid #f0f0f0;'>
+    <div style='text-align: center;'>
+        <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/768px-Spotify_icon.svg.png' width='100'>
+        <p style='font-size: 0.85em; color: gray;'>This dashboard was built with love for music data and machine learning 🎶</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.caption("Created for WIE2003 Data Science Project by Group 5")
 
