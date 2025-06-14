@@ -142,7 +142,7 @@ with predict_tab:
         **{name: pred for name, pred in predictions}
     })
 
-     st.subheader("📚 Prediction History")
+    st.subheader("📚 Prediction History")
     st.dataframe(pd.DataFrame(st.session_state.history))
 
     if st.button("🧹 Clear History"):
