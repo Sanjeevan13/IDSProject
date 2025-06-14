@@ -12,8 +12,8 @@ from math import sqrt
 
 st.set_page_config(page_title="Global Music Trend Dashboard", layout="wide")
 
-st.title("🎵 Global Music Trend Predictions Dashboard")
-st.write("Powered by Spotify Global Streaming Data 2024")
+st.title("Global Music Trend Predictions Dashboard")
+st.markdown("Dataset: [Spotify Global Streaming Data 2024](https://www.kaggle.com/datasets/atharvasoundankar/spotify-global-streaming-data-2024/data)")
 
 # Load and clean data
 @st.cache_data
