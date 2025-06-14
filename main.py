@@ -152,8 +152,8 @@ with predict_tab:
     st.dataframe(pd.DataFrame(st.session_state.history))
 
     if st.button("🧹 Clear History"):
-    st.session_state.history = []
-    st.rerun()
+        st.session_state.history = []
+        st.rerun()
 
     csv = prediction_df.to_csv(index=False)
     st.download_button("📥 Download Prediction", data=csv, file_name="prediction.csv", mime="text/csv")
