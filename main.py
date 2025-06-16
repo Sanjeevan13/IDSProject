@@ -113,7 +113,7 @@ with model_tab:
 
         fig_imp, ax_imp = plt.subplots()
         sns.barplot(data=importance_df, x='Importance', y='Feature', ax=ax_imp)
-        ax_imp.set_title("🔍 Feature Importance")
+        ax_imp.set_title("Feature Importance")
         st.pyplot(fig_imp)
 
 with predict_tab:
