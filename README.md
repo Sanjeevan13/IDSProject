@@ -49,7 +49,7 @@ https://www.kaggle.com/datasets/atharvasoundankar/spotify-global-streaming-data-
 
 ### Data product
 - In main.py using streamlit 
-- It shows outputs with UI that will appear in ([dashboard hosted on streamlit](https://idsgroup5.streamlit.app/))
+- It shows outputs with UI that will appear in the [dashboard hosted on streamlit](https://idsgroup5.streamlit.app/)
 
 
 ### Credits or Contributors
