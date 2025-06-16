@@ -1,4 +1,4 @@
-# 🎧 WIE2003 IDSproject: Spotify Global Music Trend Prediction
+# 🎧 WIE2003 Introduction to Data Science (GA2) : Spotify Global Music Trend Prediction
 - Spotify global music trend prediction
 ### Introduction
 - To model global music trend predictions using machine learning algorithms
@@ -39,7 +39,7 @@ IDSProject/
 
 ### Data Sources
 - Spotify Global Streaming Data 2024
-https://www.kaggle.com/datasets/atharvasoundankar/spotify-global-streaming-data-2024This dataset contains daily streaming statistics for global top-charted songs on Spotify, including fields such as artist, track name, release year, number of monthly listeners, total streams, average stream duration, and skip rate.
+https://www.kaggle.com/datasets/atharvasoundankar/spotify-global-streaming-data-2024.This dataset contains daily streaming statistics for global top-charted songs on Spotify, including fields such as artist, track name, release year, number of monthly listeners, total streams, average stream duration, and skip rate.
 - link to raw data and cleaned data
 
 
