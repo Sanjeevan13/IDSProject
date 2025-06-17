@@ -1,4 +1,4 @@
-# 🎧 WIE2003 Introduction to Data Science (GA2) : Global Music Trend Predictions
+# 🎧 WIE2003 Introduction to Data Science (GA2) : Global Music Trend Predictions Dashboard
 - Platform: Spotify
 ### Introduction
 - To model global music trend predictions using machine learning algorithms
